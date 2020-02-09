@@ -125,7 +125,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // Open Github
-                    String url = "http://www.github.com/juehv/GlucoProxBLE";
+                    String url = "https://github.com/juehv/GlucoProxBLE/issues";
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(url));
                     startActivity(i);
