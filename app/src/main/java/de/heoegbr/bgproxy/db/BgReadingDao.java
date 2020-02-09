@@ -9,7 +9,7 @@ import java.util.List;
 
 @Dao
 public interface BgReadingDao {
-    @Query("SELECT * FROM bgreadings ORDER BY date DESC LIMIT 336")
+    @Query("SELECT * FROM bgreadings ORDER BY date DESC LIMIT 24")
     LiveData<List<BgReading>> getLiveReadings();
 
     @Query("SELECT * FROM bgreadings ORDER BY date DESC LIMIT 15")
