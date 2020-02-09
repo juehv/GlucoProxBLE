@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">A GlucoProx BLE</string>
+    <string name="broadcast_id">Set Broadcast Device ID (&lt; 65534)</string>
+    <string name="bt_permission_rationale">Bluetooth permission is required to send CGM values via BLE advertisements!</string>
+    <string name="bt_permission_failed">Permission was not granted!</string>
+</resources>

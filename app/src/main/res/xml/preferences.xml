@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <PreferenceCategory
+        app:key="broadcast"
+        app:title="BLE Broadcast">
+
+        <SwitchPreferenceCompat
+            app:key="broadcast_en"
+            app:title="CGM broadcast"/>
+
+        <EditTextPreference
+            app:key="broadcast_id"
+            app:dialogTitle="@string/broadcast_id"
+            app:defaultValue="0"
+            app:title="Broadcast ID (HEX)"
+            app:useSimpleSummaryProvider="true"
+            app:dependency="broadcast_en"/>
+
+        <EditTextPreference
+            app:key="broadcast_password"
+            app:title="Password for encryption"
+            app:summary="Set password for encryption. Empty password for no encryption."
+            app:dependency="broadcast_en"/>
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        app:key="about"
+        app:title="About">
+        <Preference
+            app:key="feedback"
+            app:title="Send feedback"
+            app:summary="Report technical issues or suggest new features"/>
+
+        <Preference
+            app:key="version"
+            app:title="Build version"
+            app:summary="0"/>
+    </PreferenceCategory>
+</PreferenceScreen>
+
