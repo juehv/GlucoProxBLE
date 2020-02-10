@@ -1,6 +1,8 @@
 package de.heoegbr.bgproxy.db;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -15,11 +17,12 @@ public class BgReadingRepository {
 
     private static BgReadingRepository INSTANCE;
 
+    private SharedPreferences mPrefs;
     private BgReadingDao mBgReadingDao;
     private LiveData<List<BgReading>> mAllBgReadings;
     private Executor mExecutor = Executors.newSingleThreadExecutor();
 
-    private long mostRecentDate = -1;
+    private BgReading latestInsertedReading = null;
 
     public static BgReadingRepository getRepository(final Context context) {
         if (INSTANCE == null) {
@@ -36,7 +39,7 @@ public class BgReadingRepository {
         BgReadingDatabase db = BgReadingDatabase.getDatabase(context);
         mBgReadingDao = db.bgReadingDao();
         mAllBgReadings = mBgReadingDao.getLiveReadings();
-
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         mExecutor.execute(new Runnable() {
             @Override
@@ -44,7 +47,7 @@ public class BgReadingRepository {
                 // prime gap tracking
                 List<BgReading> items = mBgReadingDao.getStaticReadings();
                 if (items != null && !items.isEmpty()) {
-                    mostRecentDate = items.get(0).date;
+                    latestInsertedReading = items.get(0);
                 }
             }
         });
@@ -59,73 +62,68 @@ public class BgReadingRepository {
     }
 
     public void insert(final BgReading bgReading) {
-        // check for big gaps
-        long diff = bgReading.date - mostRecentDate;
-        if (mostRecentDate > -1 && diff > 3600000) {
+        final List<BgReading> readingsToPush = new ArrayList<>();
+        readingsToPush.add(bgReading);
+
+        // check for gaps
+        long diff = bgReading.date - latestInsertedReading.date;
+        if (latestInsertedReading != null && diff > 3600000 /*=1h*/) {
             // clear database in case of big gaps (most probably new sensor was set)
             Log.d(TAG, "Kill Database (New Sensor?)");
-            // delete all and insert new values
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     mBgReadingDao.deleteAll();
-                    mBgReadingDao.insert(bgReading);
-                    mostRecentDate = bgReading.date;
                 }
             });
-        } else {
-            final List<BgReading> readingsToPush = new ArrayList<>();
-            readingsToPush.add(bgReading);
+        } else if (latestInsertedReading != null && diff > 300000 /*=5min*/) {
+            // fill gaps with interpolation or zeros in case of small gaps
 
-            // interpolateOneValue small gaps --> generate missing values
-            if (mAllBgReadings.getValue() != null) {
-                Log.d(TAG, "Check data for gaps before adding new value");
-                List<BgReading> tmpReadings = new ArrayList<>();
-                tmpReadings.addAll(mAllBgReadings.getValue());
+            // calculate no of missing readings
+            int noOfMissingReadings = (int) Math.floor(diff / 290000) - 1;
+            Log.d(TAG, noOfMissingReadings + " readings missing.");
 
-                long currentWindowStart = bgReading.date + 160000; // make current bg center of the 5 min window
-                long currentWindowEnd;
-                BgReading lastReading = bgReading;
-                for (int i = 0; i < tmpReadings.size(); i++) {
-                    // calculate new windows
-                    currentWindowStart = lastReading.date - 140000;
-                    currentWindowEnd = currentWindowStart - 320000;
+            // calculate timestamps for missing readings
+            long[] datesOfMissingReadings = new long[noOfMissingReadings];
+            for (int i = 0; i < noOfMissingReadings; i++) {
+                datesOfMissingReadings[i] = bgReading.date - (i + 1) * 300000;
+            }
 
-                    long tmpDate = tmpReadings.get(i).date;
-
-                    if (tmpDate > currentWindowStart || tmpDate < currentWindowEnd) {
-                        Log.d(TAG, tmpDate + " not in window " + currentWindowEnd
-                                + " to " + currentWindowEnd);
-                        // not in current window --> calculate gap and interpolate
-                        int valuesToCreate = (int) Math.floor((lastReading.date - tmpDate) / 290000) - 1;
-                        Log.d(TAG, "Found gap with " + valuesToCreate + " missing Values.");
-                        if (valuesToCreate > 0 && valuesToCreate < 4) {
-                            // interpolateOneValue values ony if gap is smaller or equal 15 min
-                            double[] missingValues = interpolateBGs(lastReading.value,
-                                    tmpReadings.get(i).value, valuesToCreate);
-                            for (int j = 0; j < valuesToCreate; j++) {
-                                BgReading readingToAdd = new BgReading();
-                                readingToAdd.date = lastReading.date - (j + 1) * 300000;
-                                readingToAdd.value = missingValues[j];
-                                readingsToPush.add(readingToAdd);
-                            }
-                        }
-                    }
-                    lastReading = tmpReadings.get(i);
+            // calculate values for missing readings
+            double[] valuesOfMissingReadings = new double[noOfMissingReadings];
+            if (noOfMissingReadings < 4 || !mPrefs.getBoolean("interpolation_en", false)) {
+                // interpolation not enabled or gap too big --> fill with zeros
+                valuesOfMissingReadings = interpolateBGs(
+                        bgReading.value,
+                        latestInsertedReading.value,
+                        noOfMissingReadings);
+            } else {
+                // interpolation enabled
+                for (int i = 0; i < noOfMissingReadings; i++) {
+                    valuesOfMissingReadings[i] = 0.0;
                 }
             }
 
-            // add new value(s)
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mostRecentDate = bgReading.date;
-                    for (BgReading item : readingsToPush) {
-                        mBgReadingDao.insert(item);
-                    }
-                }
-            });
+            // build reading objects
+            for (int i = 0; i < noOfMissingReadings; i++) {
+                BgReading tmpReading = new BgReading();
+                tmpReading.date = datesOfMissingReadings[i];
+                tmpReading.value = valuesOfMissingReadings[i];
+                Log.d(TAG,tmpReading.toString());
+                readingsToPush.add(tmpReading);
+            }
         }
+
+        // add new value(s)
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                for (BgReading item : readingsToPush) {
+                    mBgReadingDao.insert(item);
+                }
+                latestInsertedReading = bgReading;
+            }
+        });
 
     }
 
@@ -149,7 +147,7 @@ public class BgReadingRepository {
 
     private double interpolateOneValue(double y1, double y2, double x) {
         double interpolation = 0;
-        interpolation = Double.valueOf(Math.round(y1 + x / 10 * (y2 - y1)));
+        interpolation = y1 + x / 10 * (y2 - y1);
 
         Log.d(TAG, "Interpolated " + interpolation + " between " + y1 + " and " + y2);
         return interpolation;

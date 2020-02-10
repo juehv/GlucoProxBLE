@@ -19,6 +19,17 @@
             app:title="Broadcast ID (HEX)"
             app:useSimpleSummaryProvider="true"
             app:dependency="broadcast_en"/>
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        app:key="optional"
+        app:title="Optional">
+
+        <SwitchPreferenceCompat
+            app:key="interpolation_en"
+            app:title="BG value interpolation"
+            app:summary="Interpolates up to 3 BG messages, in case a broadcast got lost."/>
 
         <EditTextPreference
             app:key="broadcast_password"
