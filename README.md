@@ -51,7 +51,7 @@ sudo hcidump --raw
 * `0x 16` Type: Service Data
 * `0x 1F 18` Service-UUID: 0x181F -> CGM
 * `0x 03 00` Broadcast ID (set by user)  
-* `0x A2 A1 A1 A1 A3 A4 01 A3 A2 00 00 00 9D 9E` 14 BG readings
+* `0x A2 A1 A1 A1 A3 A4 01 A3 A2 00 00 00 9D 9E` (Size - Type - ServiceUUID - BroadcastID = in this case 14) BG readings in 5min rythm. Missing readings are filled with 0x00.
 * `0x 03 00` CRC? (should be 3 bytes...)
 
 
@@ -78,10 +78,9 @@ Currently I have no idea how to decrypt the messages.
 Therefore, I recommend setting an empty password to disable the feature, or take a look at the encryption code in the class `.ble.AesEncryptionHelper` and update this section :)
 
 ## TODO
-* Update Documentation
-* Find a way to run in background reliably
+* Update documentation (especially missing parts of BLE package format)
+* Verify that "Foreground Services" are good enough to run in background reliably
 * Understand how to decrypt AES encrypted messages
-* Add simple interpolation for missing values
 * Provide a receiver app example for RPi & ESP32
 * testing, testing, testing ...
 
