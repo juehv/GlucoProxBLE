@@ -52,7 +52,7 @@ sudo hcidump --raw
 * `0x 1F 18` Service-UUID: 0x181F -> CGM
 * `0x 03 00` Broadcast ID (set by user)  
 * `0x A2 A1 A1 A1 A3 A4 01 A3 A2 00 00 00 9D 9E` 14 BG readings
-* `0x 03 00` CRC? Should be 3 bytes...
+* `0x 03 00` CRC? (should be 3 bytes...)
 
 
 **NOTE**: If you have the missing information, consider opening an issue or sending a pull request :)
@@ -71,7 +71,7 @@ One byte is coded as following:
 * `0x99 - 0xCF` low compressed span for 182-290 mg/dl
 * `0xD0 - 0xFE` high compressed span for 293-428 mg/dl
 
-![Compression Illustration](doc/compression.pnd)
+![Compression Illustration](doc/compression.png)
 
 ### Encryption
 Currently I have no idea how to decrypt the messages.
@@ -82,7 +82,7 @@ Therefore, I recommend setting an empty password to disable the feature, or take
 * Find a way to run in background reliably
 * Understand how to decrypt AES encrypted messages
 * Add simple interpolation for missing values
-* Provide a receiver app example for pi & ESP32
+* Provide a receiver app example for RPi & ESP32
 * testing, testing, testing ...
 
 [//]: # (Note to future me: Look at this --> https://ukbaz.github.io/howto/beacon_scan_cmd_line.html)
