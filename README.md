@@ -38,19 +38,19 @@ sudo hcidump --raw
 ```
 61:B0:ED:D1:F0:22 (unknown)
 > 04 3E 20 02 01 02 01 22 F0 D1 ED B0 61 14 13 16 1F 18 03 00
-  A2 A1 A1 A1 A3 A4 01 A3 A2 01 01 01 9D 9E B3
+  A2 A1 A1 A1 A3 A4 01 A3 A2 00 00 00 9D 9E B3
 ``` 
 
 * `0x 04` Preamble  
 * `0x 3E 20 02 01` Access Address (maybe keep in mind for later use)
-* `0x 02` Advertising package type: ADV_NONCONN_IND --> non-connectable undirected advertising event
-* `0x 01` --> 0b0001 --> 00 Reserved --> 0 RxAdd 1 TxAdd (no idea ...)
+* `0x 02` Advertising package type: ADV_NONCONN_IND -> non-connectable undirected advertising event
+* `0x 01` -> 0b0001 -> 00 Reserved -> 0 RxAdd 1 TxAdd (no idea ...)
 * `0x 22 F0 D1 ED B0 61` MAC Addresse (wich is changed regularly on Android)
-* `0x 14` BIT[8:13]：advertising data length （Maximum 37 bytes) BIT[14:15]：Reserved --> 0b 00**01 0100** --> 20
+* `0x 14` BIT[8:13]：advertising data length （Maximum 37 bytes) BIT[14:15]：Reserved -> 0b 00**01 0100** -> 20
 * `0x 13` Size: 19
 * `0x 16` Type: Service Data
 * `0x 1F 18` Service-UUID: 0x181F -> CGM
-* `0x 03 00` Broadcast ID (set by user)  
+* `0x 03 00` 10 bit Broadcast ID (set by user) -> 0x0003 -> 3  
 * `0x A2 A1 A1 A1 A3 A4 01 A3 A2 00 00 00 9D 9E` (Size - Type - ServiceUUID - BroadcastID = in this case 14) BG readings in 5min rythm. Missing readings are filled with 0x00.
 * `0x 03 00` CRC? (should be 3 bytes...)
 
