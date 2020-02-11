@@ -29,13 +29,30 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
     private static final String TAG = "PREF_FRAGMENT";
     private static final int REQUEST_BT = 42;
 
+    public static int getCleanBroadcastId(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int id;
+        try {
+            id = Integer.parseInt(prefs.getString("broadcast_id", "0"));
+        } catch (NumberFormatException ex) {
+            Log.d(TAG, ex.toString());
+            id = 0;
+        }
+        if (id <= 0 || id >= 65534) {
+            // id not valid --> Random ID
+            id = new Random().nextInt(65500) + 1;
+            prefs.edit().putInt("broadcast_id", id);
+        }
+        return id;
+    }
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         // customize input elements
         EditTextPreference idPrefField = findPreference("broadcast_id");
-        if (idPrefField != null){
+        if (idPrefField != null) {
             idPrefField.setOnBindEditTextListener(
                     new EditTextPreference.OnBindEditTextListener() {
                         @Override
@@ -56,7 +73,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                 @Override
                 public CharSequence provideSummary(EditTextPreference preference) {
                     int id = getCleanBroadcastId(getContext());
-                    return String.format("Current ID 0x%04X",id);
+                    return String.format("Current ID 0x%04X", id);
                 }
             };
 
@@ -64,7 +81,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         }
 
         EditTextPreference pwPrefField = findPreference("broadcast_password");
-        if (pwPrefField != null){
+        if (pwPrefField != null) {
             pwPrefField.setOnBindEditTextListener(
                     new EditTextPreference.OnBindEditTextListener() {
                         @Override
@@ -77,13 +94,13 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         }
 
         Preference buildVersion = findPreference("version");
-        if (buildVersion != null){
+        if (buildVersion != null) {
             buildVersion.setSummary(BuildConfig.VERSION_NAME);
         }
 
 
         SwitchPreferenceCompat broadcastPrefSwitch = findPreference("broadcast_en");
-        if (broadcastPrefSwitch != null){
+        if (broadcastPrefSwitch != null) {
             // disable option if ble is not supported
             if (!getContext().getPackageManager()
                     .hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -95,14 +112,14 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
             broadcastPrefSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if (newValue instanceof Boolean && ((Boolean) newValue).booleanValue() == true){
+                    if (newValue instanceof Boolean && ((Boolean) newValue).booleanValue() == true) {
 
                         Log.d(TAG, "BT Broadcast on");
                         // check for permission
                         if (getActivity().checkSelfPermission(Manifest.permission.BLUETOOTH)
                                 != PackageManager.PERMISSION_GRANTED
                                 || getActivity().checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN)
-                                        != PackageManager.PERMISSION_GRANTED) {
+                                != PackageManager.PERMISSION_GRANTED) {
                             // ask for permission
                             if (shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_ADMIN)) {
                                 Toast.makeText(getActivity().getApplicationContext(),
@@ -120,7 +137,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
 
         // add listener to send feedback
         Preference feedback = findPreference("feedback");
-        if (feedback != null){
+        if (feedback != null) {
             feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -133,22 +150,5 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                 }
             });
         }
-    }
-
-    public static int getCleanBroadcastId(Context context){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int id;
-        try {
-            id = Integer.parseInt(prefs.getString("broadcast_id", "0"));
-        } catch (NumberFormatException ex){
-            Log.d(TAG, ex.toString());
-            id = 0;
-        }
-        if (id <= 0 || id >=65534){
-            // id not valid --> Random ID
-            id = new Random().nextInt(65500)+1;
-            prefs.edit().putInt("broadcast_id", id);
-        }
-        return id;
     }
 }

@@ -1,7 +1,6 @@
 package de.heoegbr.bgproxy.ble;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -10,10 +9,12 @@ import androidx.work.WorkManager;
 
 public final class WorkScheduleHelper {
     private static final String TAG = "WORK_SCHEDULE_HELPER";
+
     private WorkScheduleHelper() {
     }
 
     public static void scheduleBtBroadcast(Context context) {
+        // FIXME this is called multiple times when readings are backfilled ...
         if (PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getBoolean("broadcast_en", false)) {

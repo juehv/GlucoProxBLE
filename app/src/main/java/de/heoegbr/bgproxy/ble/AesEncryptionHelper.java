@@ -20,10 +20,9 @@ public class AesEncryptionHelper {
     private static final int KEY_PASSWORD_ITERATIONS = 100000;
     private static final int KEY_SIZE = 128;
     private static final String KEY_SALT = "Wfcr78WFrd2r4F";
+    private static final String CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
     private static String KEY_PASSWORD_CACHE = "";
     private static byte[] KEY_INSTANCE = new byte[0];
-
-    private static final String CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
 
     public static byte[] encrypt(String password, byte[] payloadToEncrypt) {
         try {

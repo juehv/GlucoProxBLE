@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
     <PreferenceCategory
@@ -10,15 +9,15 @@
 
         <SwitchPreferenceCompat
             app:key="broadcast_en"
-            app:title="CGM broadcast"/>
+            app:title="CGM broadcast" />
 
         <EditTextPreference
-            app:key="broadcast_id"
-            app:dialogTitle="@string/broadcast_id"
             app:defaultValue="0"
+            app:dependency="broadcast_en"
+            app:dialogTitle="@string/broadcast_id"
+            app:key="broadcast_id"
             app:title="Broadcast ID (HEX)"
-            app:useSimpleSummaryProvider="true"
-            app:dependency="broadcast_en"/>
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
 
@@ -28,14 +27,14 @@
 
         <SwitchPreferenceCompat
             app:key="interpolation_en"
-            app:title="BG value interpolation"
-            app:summary="Interpolates up to 3 BG messages, in case a broadcast got lost."/>
+            app:summary="Interpolates up to 3 BG messages, in case a broadcast got lost."
+            app:title="BG value interpolation" />
 
         <EditTextPreference
+            app:dependency="broadcast_en"
             app:key="broadcast_password"
-            app:title="Password for encryption"
             app:summary="Set password for encryption. Empty password for no encryption."
-            app:dependency="broadcast_en"/>
+            app:title="Password for encryption" />
     </PreferenceCategory>
 
 
@@ -44,13 +43,13 @@
         app:title="About">
         <Preference
             app:key="feedback"
-            app:title="Send feedback"
-            app:summary="Report technical issues or suggest new features"/>
+            app:summary="Report technical issues or suggest new features"
+            app:title="Send feedback" />
 
         <Preference
             app:key="version"
-            app:title="Build version"
-            app:summary="0"/>
+            app:summary="0"
+            app:title="Build version" />
     </PreferenceCategory>
 </PreferenceScreen>
 

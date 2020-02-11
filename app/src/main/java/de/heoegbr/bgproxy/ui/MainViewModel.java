@@ -1,4 +1,4 @@
-package de.heoegbr.bgproxy;
+package de.heoegbr.bgproxy.ui;
 
 import android.app.Application;
 
@@ -18,10 +18,10 @@ public class MainViewModel extends AndroidViewModel {
     public MainViewModel(@NonNull Application application) {
         super(application);
         mRepository = BgReadingRepository.getRepository(application.getApplicationContext());
-        mAllReadings = mRepository.getAllBgReadings();
+        mAllReadings = mRepository.getLiveReadings();
     }
 
-    public LiveData<List<BgReading>> getAllReadings() {
+    public LiveData<List<BgReading>> getLiveReadings() {
         return mAllReadings;
     }
 }

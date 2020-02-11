@@ -1,10 +1,8 @@
-package de.heoegbr.bgproxy;
+package de.heoegbr.bgproxy.ui;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -18,9 +16,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.heoegbr.bgproxy.ble.WorkScheduleHelper;
+import de.heoegbr.bgproxy.R;
 import de.heoegbr.bgproxy.db.BgReading;
-import de.heoegbr.bgproxy.ui.PreferencesFragment;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MAIN_ACTIVITY";
@@ -47,14 +44,14 @@ public class MainActivity extends AppCompatActivity {
 
         // get view model
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mMainViewModel.getAllReadings().observe(this, new Observer<List<BgReading>>() {
+        mMainViewModel.getLiveReadings().observe(this, new Observer<List<BgReading>>() {
             @Override
             public void onChanged(List<BgReading> bgReadings) {
                 Log.d(TAG, "Got live data update.");
                 updateGraph(graph, bgReadings);
 
                 //TODO find a more suitable place to schedule this
-                WorkScheduleHelper.scheduleBtBroadcast(getApplicationContext());
+                //WorkScheduleHelper.scheduleBtBroadcast(getApplicationContext());
             }
         });
     }
@@ -67,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         long now = new Date().getTime();
         for (int i = bgReadings.size() - 1; i >= 0; i--) {
             BgReading reading = bgReadings.get(i);
-            int offset = (int) -1* Math.round((now-reading.date)/60000);
+            int offset = (int) -1 * Math.round((now - reading.date) / 60000);
             convertedData.add(new DataPoint(offset, reading.value));
         }
         LineGraphSeries<DataPoint> bgSeries = new LineGraphSeries<>(

@@ -15,7 +15,6 @@ import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import androidx.work.Logger;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -27,25 +26,35 @@ import de.heoegbr.bgproxy.ui.PreferencesFragment;
 
 public class BtBgAdvertiserWorker extends Worker {
 
-    private static final String TAG = "BT_WORKER";
+    public static final ParcelUuid CGM_SERVICE = ParcelUuid.fromString("0000181F-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid GLUCOSE_SERVICE = ParcelUuid.fromString("00001808-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid BATTERY_SERVICE = ParcelUuid.fromString("0000180F-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid DEVICE_INFORAMTION_SERVICE = ParcelUuid.fromString("0000180A-0000-1000-8000-00805f9b34fb");
-
-    public static final ParcelUuid CGM_SERVICE = ParcelUuid.fromString("0000181F-0000-1000-8000-00805f9b34fb");
+    private static final String TAG = "BT_WORKER";
     private final Context context;
+    private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
+        @Override
+        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+            Log.i(TAG, "LE Advertise Started.");
+        }
+
+        @Override
+        public void onStartFailure(int errorCode) {
+            Log.w(TAG, "LE Advertise Failed: " + errorCode);
+        }
+    };
+
 
     public BtBgAdvertiserWorker(Context context, WorkerParameters workerParams) {
         super(context, workerParams);
         this.context = context;
     }
 
-
     @Override
     public Result doWork() {
         // get data
         List<BgReading> readings = BgReadingRepository.getRepository(context)
-                .getMostRecentBgReadings();
+                .getMostRecentStaticReadings();
 
         // FIXME Debug code
 //        if (readings != null) {
@@ -89,11 +98,12 @@ public class BtBgAdvertiserWorker extends Worker {
 
         // prapare BLE data and config
         if (mBluetoothLeAdvertiser == null) return Result.failure();
+        mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
 
         AdvertiseSettings settings = new AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER)
                 .setConnectable(false)
-                .setTimeout(60)
+                .setTimeout(60000)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)
                 .build();
 
@@ -204,16 +214,4 @@ public class BtBgAdvertiserWorker extends Worker {
 
         return (byte) 0;
     }
-
-    private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
-        @Override
-        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-            Log.i(TAG, "LE Advertise Started.");
-        }
-
-        @Override
-        public void onStartFailure(int errorCode) {
-            Log.w(TAG, "LE Advertise Failed: " + errorCode);
-        }
-    };
 }

@@ -12,17 +12,31 @@ public class BgReading {
 
     @PrimaryKey
     @NonNull
-    @ColumnInfo(name="date")
+    @ColumnInfo(name = "date")
     public long date;
 
     public boolean isValid = true;
 
-    @ColumnInfo(name="value")
+    @ColumnInfo(name = "value")
     public double value;
-    @ColumnInfo(name="direction")
+    @ColumnInfo(name = "direction")
     public String direction;
 
     public BgReading() {
+    }
+
+    public static boolean isSlopeNameInvalid(String direction) {
+        if (direction.compareTo("NOT_COMPUTABLE") == 0 ||
+                direction.compareTo("NOT COMPUTABLE") == 0 ||
+                direction.compareTo("OUT_OF_RANGE") == 0 ||
+                direction.compareTo("OUT OF RANGE") == 0 ||
+                direction.compareTo("NONE") == 0 ||
+                direction.compareTo("NotComputable") == 0
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String directionToSymbol() {
@@ -48,21 +62,6 @@ public class BgReading {
         }
         return symbol;
     }
-
-    public static boolean isSlopeNameInvalid(String direction) {
-        if (direction.compareTo("NOT_COMPUTABLE") == 0 ||
-                direction.compareTo("NOT COMPUTABLE") == 0 ||
-                direction.compareTo("OUT_OF_RANGE") == 0 ||
-                direction.compareTo("OUT OF RANGE") == 0 ||
-                direction.compareTo("NONE") == 0 ||
-                direction.compareTo("NotComputable") == 0
-                ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 
     @Override
     public String toString() {

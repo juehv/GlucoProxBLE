@@ -24,17 +24,6 @@ public class BgReadingRepository {
 
     private BgReading latestInsertedReading = null;
 
-    public static BgReadingRepository getRepository(final Context context) {
-        if (INSTANCE == null) {
-            synchronized (BgReadingRepository.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new BgReadingRepository(context);
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
     private BgReadingRepository(final Context context) {
         BgReadingDatabase db = BgReadingDatabase.getDatabase(context);
         mBgReadingDao = db.bgReadingDao();
@@ -53,11 +42,22 @@ public class BgReadingRepository {
         });
     }
 
-    public LiveData<List<BgReading>> getAllBgReadings() {
+    public static BgReadingRepository getRepository(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (BgReadingRepository.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new BgReadingRepository(context);
+                }
+            }
+        }
+        return INSTANCE;
+    }
+
+    public LiveData<List<BgReading>> getLiveReadings() {
         return mAllBgReadings;
     }
 
-    public List<BgReading> getMostRecentBgReadings() {
+    public List<BgReading> getMostRecentStaticReadings() {
         return mBgReadingDao.getStaticReadings();
     }
 
@@ -91,7 +91,7 @@ public class BgReadingRepository {
 
             // calculate values for missing readings
             double[] valuesOfMissingReadings = new double[noOfMissingReadings];
-            if (noOfMissingReadings < 4 || !mPrefs.getBoolean("interpolation_en", false)) {
+            if (noOfMissingReadings < 4 && mPrefs.getBoolean("interpolation_en", false)) {
                 // interpolation not enabled or gap too big --> fill with zeros
                 valuesOfMissingReadings = interpolateBGs(
                         bgReading.value,
@@ -109,7 +109,7 @@ public class BgReadingRepository {
                 BgReading tmpReading = new BgReading();
                 tmpReading.date = datesOfMissingReadings[i];
                 tmpReading.value = valuesOfMissingReadings[i];
-                Log.d(TAG,tmpReading.toString());
+                Log.d(TAG, tmpReading.toString());
                 readingsToPush.add(tmpReading);
             }
         }

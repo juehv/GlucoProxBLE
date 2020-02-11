@@ -4,7 +4,10 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
     <application
         android:name=".GlucoProxApp"
@@ -14,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,18 +25,26 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".receiver.XdripDataReceiver"  android:exported="true">
+        <receiver
+            android:name=".receiver.XdripDataReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.eveningoutpost.dexdrip.BgEstimate"/>
+                <action android:name="com.eveningoutpost.dexdrip.BgEstimate" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receiver.BootCompletedBroadcastReceiver"  android:exported="true">
+        <receiver
+            android:name=".receiver.BootCompletedBroadcastReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
+        <service
+            android:name=".service.DontDieService"
+            android:enabled="true"
+            android:exported="true" />
 
     </application>
 
