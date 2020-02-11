@@ -106,7 +106,7 @@ public class BtBgAdvertiserWorker extends Worker {
         AdvertiseSettings settings = new AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER)
                 .setConnectable(false)
-                .setTimeout(60000)
+                .setTimeout(60000) // 1m
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)
                 .build();
 
@@ -198,7 +198,9 @@ public class BtBgAdvertiserWorker extends Worker {
 
         // compress
         long tmpValue = Math.round(bgValue);
-        if (tmpValue < 30) {
+        if (tmpValue <= 0) {
+            return (byte) 0;
+        } else if (tmpValue < 30) {
             // error low
             return (byte) 1;
         } else if (tmpValue < 181) {
