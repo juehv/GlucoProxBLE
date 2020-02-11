@@ -79,7 +79,6 @@ public class GlucoProxApp extends Application {
         BluetoothManager manager = (BluetoothManager) context
                 .getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter mBluetoothAdapter = manager.getAdapter();
-        BluetoothLeAdvertiser mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
         /*
          * We need to enforce that Bluetooth is first enabled, and take the
@@ -91,9 +90,11 @@ public class GlucoProxApp extends Application {
             context.startActivity(enableBtIntent);
             PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .edit().putBoolean("broadcast_en", false);
+                    .edit().putBoolean("broadcast_en", false).apply();
             return;
         }
+
+        BluetoothLeAdvertiser mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
         /*
          * Check for Bluetooth LE Support.  In production, our manifest entry will keep this
@@ -104,7 +105,7 @@ public class GlucoProxApp extends Application {
             Toast.makeText(context, "No LE Support.", Toast.LENGTH_SHORT).show();
             PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .edit().putBoolean("broadcast_en", false);
+                    .edit().putBoolean("broadcast_en", false).apply();
             return;
         }
 
@@ -116,7 +117,7 @@ public class GlucoProxApp extends Application {
             Toast.makeText(context, "No Advertising Support.", Toast.LENGTH_SHORT).show();
             PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .edit().putBoolean("broadcast_en", false);
+                    .edit().putBoolean("broadcast_en", false).apply();
             return;
         }
     }
@@ -127,8 +128,7 @@ public class GlucoProxApp extends Application {
                 checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
             PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .edit().putBoolean("broadcast_en", false);
-            return;
+                    .edit().putBoolean("broadcast_en", false).apply();
         }
     }
 }

@@ -14,7 +14,7 @@ public class BootCompletedBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Try to register BroadcastReceiver...");
-        Toast.makeText(context, R.string.app_name + " started...", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, R.string.app_name + " started by boot completed intent", Toast.LENGTH_LONG).show();
         //FIXME does this work? Is the App object created (which registers the broadcast)?
     }
 }

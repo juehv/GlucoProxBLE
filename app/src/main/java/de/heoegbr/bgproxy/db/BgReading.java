@@ -11,7 +11,6 @@ import java.util.Date;
 public class BgReading {
 
     @PrimaryKey
-    @NonNull
     @ColumnInfo(name = "date")
     public long date;
 

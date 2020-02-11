@@ -1,6 +1,7 @@
 package de.heoegbr.bgproxy.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,7 +42,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         if (id <= 0 || id >= 65534) {
             // id not valid --> Random ID
             id = new Random().nextInt(65500) + 1;
-            prefs.edit().putInt("broadcast_id", id);
+            prefs.edit().putInt("broadcast_id", id).apply();
         }
         return id;
     }
@@ -112,17 +113,19 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
             broadcastPrefSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if (newValue instanceof Boolean && ((Boolean) newValue).booleanValue() == true) {
+                    if (newValue instanceof Boolean && ((Boolean) newValue).booleanValue()) {
 
                         Log.d(TAG, "BT Broadcast on");
                         // check for permission
-                        if (getActivity().checkSelfPermission(Manifest.permission.BLUETOOTH)
+                        Activity parentActivity = getActivity();
+                        if (parentActivity != null && (
+                                parentActivity.checkSelfPermission(Manifest.permission.BLUETOOTH)
                                 != PackageManager.PERMISSION_GRANTED
-                                || getActivity().checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN)
-                                != PackageManager.PERMISSION_GRANTED) {
+                                || parentActivity.checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN)
+                                != PackageManager.PERMISSION_GRANTED)) {
                             // ask for permission
                             if (shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_ADMIN)) {
-                                Toast.makeText(getActivity().getApplicationContext(),
+                                Toast.makeText(parentActivity.getApplicationContext(),
                                         getString(R.string.bt_permission_rationale),
                                         Toast.LENGTH_LONG).show();
                             }

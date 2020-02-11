@@ -34,6 +34,7 @@ public class DontDieService extends LifecycleService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
+        // TODO make notification useful (last broadcast, last received bg reading ...)
         Notification notification = new NotificationCompat.Builder(this, GlucoProxApp.CHANNEL_ID)
                 .setContentTitle("GlucoProxBLE")
                 .setContentText("Service is running.")
@@ -51,7 +52,6 @@ public class DontDieService extends LifecycleService {
                 WorkScheduleHelper.scheduleBtBroadcast(getApplicationContext());
             }
         });
-        ;
 
         return START_STICKY;
     }
@@ -64,6 +64,7 @@ public class DontDieService extends LifecycleService {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 }

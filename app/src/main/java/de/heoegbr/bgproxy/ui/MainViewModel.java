@@ -12,8 +12,8 @@ import de.heoegbr.bgproxy.db.BgReading;
 import de.heoegbr.bgproxy.db.BgReadingRepository;
 
 public class MainViewModel extends AndroidViewModel {
-    BgReadingRepository mRepository;
-    LiveData<List<BgReading>> mAllReadings;
+    private BgReadingRepository mRepository;
+    private LiveData<List<BgReading>> mAllReadings;
 
     public MainViewModel(@NonNull Application application) {
         super(application);

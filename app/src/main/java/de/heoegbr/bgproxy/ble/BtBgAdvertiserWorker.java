@@ -15,6 +15,7 @@ import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -26,7 +27,7 @@ import de.heoegbr.bgproxy.ui.PreferencesFragment;
 
 public class BtBgAdvertiserWorker extends Worker {
 
-    public static final ParcelUuid CGM_SERVICE = ParcelUuid.fromString("0000181F-0000-1000-8000-00805f9b34fb");
+    private static final ParcelUuid CGM_SERVICE = ParcelUuid.fromString("0000181F-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid GLUCOSE_SERVICE = ParcelUuid.fromString("00001808-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid BATTERY_SERVICE = ParcelUuid.fromString("0000180F-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid DEVICE_INFORAMTION_SERVICE = ParcelUuid.fromString("0000180A-0000-1000-8000-00805f9b34fb");
@@ -50,6 +51,7 @@ public class BtBgAdvertiserWorker extends Worker {
         this.context = context;
     }
 
+    @NonNull
     @Override
     public Result doWork() {
         // get data
@@ -75,7 +77,7 @@ public class BtBgAdvertiserWorker extends Worker {
                 != PackageManager.PERMISSION_GRANTED) {
             PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .edit().putBoolean("broadcast_en", false);
+                    .edit().putBoolean("broadcast_en", false).apply();
             return Result.failure();
         }
 
@@ -83,7 +85,6 @@ public class BtBgAdvertiserWorker extends Worker {
         BluetoothManager manager = (BluetoothManager) context
                 .getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter mBluetoothAdapter = manager.getAdapter();
-        BluetoothLeAdvertiser mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
         /*
          * We need to enforce that Bluetooth is first enabled, and take the
@@ -95,6 +96,8 @@ public class BtBgAdvertiserWorker extends Worker {
             context.startActivity(enableBtIntent);
             return Result.failure();
         }
+
+        BluetoothLeAdvertiser mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
         // prapare BLE data and config
         if (mBluetoothLeAdvertiser == null) return Result.failure();
@@ -129,19 +132,19 @@ public class BtBgAdvertiserWorker extends Worker {
         int broadcastId = PreferencesFragment.getCleanBroadcastId(context);
         String plainPassword = prefs.getString("broadcast_password", "");
 
-        // estimate if values are in mmol/l
-        boolean isMmol = true;
-        for (BgReading item : readings) {
-            if (item.value > 25.0) {
-                // should be a mg/dl
-                isMmol = false;
-                break;
-            }
-        }
-
-        // build payload
-        byte[] bqValuePayload = new byte[14];
         if (readings != null) {
+            // estimate if values are in mmol/l
+            boolean isMmol = true;
+            for (BgReading item : readings) {
+                if (item.value > 25.0) {
+                    // should be a mg/dl
+                    isMmol = false;
+                    break;
+                }
+            }
+
+            // build payload
+            byte[] bqValuePayload = new byte[14];
             // prepare bg payload
             int entryCount = 0;
             while (entryCount < bqValuePayload.length) {
@@ -184,8 +187,8 @@ public class BtBgAdvertiserWorker extends Worker {
      * 153-207 -> low compressed span for 181-290 mg/dl
      * 208-254 -> high compressed span for 291-428 mg/dl
      *
-     * @param bgValue
-     * @return
+     * @param bgValue uncompressed bg value
+     * @return compressed bg value
      */
     private byte compressBgValue(double bgValue, boolean isMmol) {
         if (isMmol) {

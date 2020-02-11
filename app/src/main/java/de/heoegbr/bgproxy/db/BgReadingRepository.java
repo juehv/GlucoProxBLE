@@ -66,8 +66,10 @@ public class BgReadingRepository {
         readingsToPush.add(bgReading);
 
         // check for gaps
-        long diff = bgReading.date - latestInsertedReading.date;
-        if (latestInsertedReading != null && diff > 3600000 /*=1h*/) {
+        long diff;
+        if (latestInsertedReading == null)            diff = -1;
+        else diff = bgReading.date - latestInsertedReading.date;
+        if (diff > 3600000 /*=1h*/) {
             // clear database in case of big gaps (most probably new sensor was set)
             Log.d(TAG, "Kill Database (New Sensor?)");
             mExecutor.execute(new Runnable() {
@@ -76,7 +78,7 @@ public class BgReadingRepository {
                     mBgReadingDao.deleteAll();
                 }
             });
-        } else if (latestInsertedReading != null && diff > 300000 /*=5min*/) {
+        } else if (diff > 300000 /*=5min*/) {
             // fill gaps with interpolation or zeros in case of small gaps
 
             // calculate no of missing readings
@@ -134,7 +136,7 @@ public class BgReadingRepository {
      * @param y1
      * @param y2
      * @param noOfMissingValues
-     * @return
+     * @return array containing interpolated bg values
      */
     private double[] interpolateBGs(double y1, double y2, int noOfMissingValues) {
         double[] missingValues = new double[noOfMissingValues];
@@ -146,8 +148,7 @@ public class BgReadingRepository {
     }
 
     private double interpolateOneValue(double y1, double y2, double x) {
-        double interpolation = 0;
-        interpolation = y1 + x / 10 * (y2 - y1);
+        double interpolation = y1 + x / 10 * (y2 - y1);
 
         Log.d(TAG, "Interpolated " + interpolation + " between " + y1 + " and " + y2);
         return interpolation;

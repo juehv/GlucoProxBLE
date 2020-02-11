@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         long now = new Date().getTime();
         for (int i = bgReadings.size() - 1; i >= 0; i--) {
             BgReading reading = bgReadings.get(i);
-            int offset = (int) -1 * Math.round((now - reading.date) / 60000);
+            int offset = -1 * Math.round((now - reading.date) / 60000);
             convertedData.add(new DataPoint(offset, reading.value));
         }
         LineGraphSeries<DataPoint> bgSeries = new LineGraphSeries<>(

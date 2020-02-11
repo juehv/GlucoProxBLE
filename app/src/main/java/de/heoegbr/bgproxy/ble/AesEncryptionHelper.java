@@ -26,7 +26,7 @@ public class AesEncryptionHelper {
 
     public static byte[] encrypt(String password, byte[] payloadToEncrypt) {
         try {
-            if (KEY_INSTANCE.length == 0 || KEY_PASSWORD_CACHE != password) {
+            if (KEY_INSTANCE.length == 0 || !KEY_PASSWORD_CACHE.equals(password)) {
                 KEY_PASSWORD_CACHE = password;
                 KEY_INSTANCE = generateKey(password, KEY_SALT);
             }

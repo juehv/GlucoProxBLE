@@ -16,11 +16,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:fullBackupContent="false"
         android:theme="@style/AppTheme">
         <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -42,9 +43,7 @@
         </receiver>
 
         <service
-            android:name=".service.DontDieService"
-            android:enabled="true"
-            android:exported="true" />
+            android:name=".service.DontDieService" />
 
     </application>
 
