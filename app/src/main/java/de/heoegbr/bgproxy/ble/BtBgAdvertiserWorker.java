@@ -20,6 +20,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import de.heoegbr.bgproxy.db.BgReading;
@@ -71,6 +72,14 @@ public class BtBgAdvertiserWorker extends Worker {
 
         if (readings == null || readings.isEmpty()) return Result.failure();
 
+        // calculate time offset to now
+        long offset = (new Date().getTime()) - readings.get(0).date;
+        offset = Math.abs(Math.round(offset / 60000)); // in minutes
+        Log.d(TAG, "Time Offset:"+offset);
+        if (offset > 254){
+            Log.d(TAG, "Time offset too big. No advertisement!");
+            return Result.failure();
+        }
 
         // disable bt broadcast when no permission granted
         if (context.checkSelfPermission(Manifest.permission.BLUETOOTH)
@@ -117,7 +126,7 @@ public class BtBgAdvertiserWorker extends Worker {
                 .setIncludeDeviceName(false)
                 .setIncludeTxPowerLevel(false)
                 .addServiceUuid(GENERIC_SERVICE)
-                .addServiceData(GENERIC_SERVICE, buildPacket(context, readings))
+                .addServiceData(GENERIC_SERVICE, buildPacket(context, readings, (byte) offset))
                 .build();
 
 
@@ -134,7 +143,7 @@ public class BtBgAdvertiserWorker extends Worker {
         return Result.success();
     }
 
-    private byte[] buildPacket(Context context, List<BgReading> readings) {
+    private byte[] buildPacket(Context context, List<BgReading> readings, byte timeOffsetInMinutes) {
         // get static data
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         // TODO find clean solution for ID management
@@ -177,13 +186,15 @@ public class BtBgAdvertiserWorker extends Worker {
             }
 
             // build package
-            byte[] packageToSend = new byte[bqValuePayload.length + 2];
+            byte[] packageToSend = new byte[bqValuePayload.length + 3];
             // add id
             packageToSend[0] = (byte) (broadcastId & 0xFF);
             packageToSend[1] = (byte) ((broadcastId >> 8) & 0xFF);
+            // add time offset
+            packageToSend[2] = timeOffsetInMinutes;
             // add payload
             for (int i = 0; i < bqValuePayload.length; i++) {
-                packageToSend[i + 2] = bqValuePayload[i];
+                packageToSend[i + 3] = bqValuePayload[i];
             }
 
             return packageToSend;
