@@ -59,7 +59,7 @@ sudo hcidump --raw
 * `0x 86 85 86 8A 8A 8D 91 93 94 94 92 00 00 00 00 00` (Size - Type - ServiceUUID - BroadcastID - TimeOffset = in this case 16) BG readings in 5min rythm (starting with the newest). Missing readings are filled with 0x00.
 * `0x B1` CRC? (should be 3 bytes...)
 
-I found [this](https://www.silabs.com/community/wireless/bluetooth/knowledge-base.entry.html/2017/02/10/bluetooth_advertisin-hGsf) article very helpful to understand the packet structure
+I found [this](https://www.silabs.com/community/wireless/bluetooth/knowledge-base.entry.html/2017/02/10/bluetooth_advertisin-hGsf) article very helpful to understand the packet structure.
 
 
 **NOTE**: If you have the missing information, consider opening an issue or sending a pull request :)
