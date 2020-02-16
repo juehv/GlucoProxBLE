@@ -33,26 +33,29 @@ sudo hcidump --raw
 ```
 
 ### Understanding BLE advertisement packet format
-`sudo hcidump --raw` will produce a output similar to this:
+`sudo hcidump --raw` will produce output similar to this:
 
 ```
-61:B0:ED:D1:F0:22 (unknown)
-> 04 3E 20 02 01 02 01 22 F0 D1 ED B0 61 14 13 16 1F 18 03 00
-  A2 A1 A1 A1 A3 A4 01 A3 A2 00 00 00 9D 9E B3
+46:23:AB:20:44:5C (unknown)
+> 04 3E 27 02 01 02 01 5C 44 20 AB 23 46 1B 03 03 01 18 16 16
+  01 18 03 00 00 86 85 86 8A 8A 8D 91 93 94 94 92 00 00 00 00
+  00 B1
 ``` 
 
 * `0x 04` Preamble  
 * `0x 3E 20 02 01` Access Address (maybe keep in mind for later use)
 * `0x 02` Advertising package type: ADV_NONCONN_IND -> non-connectable undirected advertising event
 * `0x 01` -> 0b0001 -> 00 Reserved -> 0 RxAdd 1 TxAdd (no idea ...)
-* `0x 22 F0 D1 ED B0 61` MAC Addresse (wich is changed regularly on Android)
-* `0x 14` BIT[8:13]：advertising data length （Maximum 37 bytes) BIT[14:15]：Reserved -> 0b 00**01 0100** -> 20
-* `0x 13` Size: 19
+* `0x 5C 44 20 AB 23 46` MAC Addresse (wich is changed regularly on Android)
+* `0x 1B` BIT[8:13]：advertising data length （Maximum 37 bytes) BIT[14:15]：Reserved -> 0b 00**01 0100** -> 20
+03 03 01 18
+* `0x 16` Size: 22
 * `0x 16` Type: Service Data
-* `0x 1F 18` Service-UUID: 0x181F -> CGM
+* `0x 01 18` Service-UUID: 0x1801 -> Generic Attribute
 * `0x 03 00` 10 bit Broadcast ID (set by user) -> 0x0003 -> 3  
-* `0x A2 A1 A1 A1 A3 A4 01 A3 A2 00 00 00 9D 9E` (Size - Type - ServiceUUID - BroadcastID = in this case 14) BG readings in 5min rythm. Missing readings are filled with 0x00.
-* `0x 03 00` CRC? (should be 3 bytes...)
+* `0x 00` Time offset (or age) in minutes of the first BG reading.
+* `0x 86 85 86 8A 8A 8D 91 93 94 94 92 00 00 00 00 00` (Size - Type - ServiceUUID - BroadcastID - TimeOffset = in this case 16) BG readings in 5min rythm (starting with the newest). Missing readings are filled with 0x00.
+* `0x B1` CRC? (should be 3 bytes...)
 
 
 **NOTE**: If you have the missing information, consider opening an issue or sending a pull request :)
@@ -76,6 +79,11 @@ One byte is coded as following:
 ### Encryption
 Currently I have no idea how to decrypt the messages.
 Therefore, I recommend setting an empty password to disable the feature, or take a look at the encryption code in the class `.ble.AesEncryptionHelper` and update this section :)
+
+## Clients
+I've implemented a very simple client for receiving unencrypted bg readings with an ESP32.
+It's implemented with Platform IO and the Arduino framework.
+See examples/clients/esp32Arduino
 
 ## TODO
 * Update documentation (especially missing parts of BLE package format)
