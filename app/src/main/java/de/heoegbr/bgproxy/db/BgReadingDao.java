@@ -12,7 +12,7 @@ public interface BgReadingDao {
     @Query("SELECT * FROM bgreadings ORDER BY date DESC LIMIT 24")
     LiveData<List<BgReading>> getLiveReadings();
 
-    @Query("SELECT * FROM bgreadings ORDER BY date DESC LIMIT 15")
+    @Query("SELECT * FROM bgreadings ORDER BY date DESC LIMIT 24") // 2 hours
     List<BgReading> getStaticReadings();
 
     @Insert

@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import java.util.Arrays;
 import java.util.List;
 
 import de.heoegbr.bgproxy.db.BgReading;
@@ -27,7 +28,8 @@ import de.heoegbr.bgproxy.ui.PreferencesFragment;
 
 public class BtBgAdvertiserWorker extends Worker {
 
-    private static final ParcelUuid CGM_SERVICE = ParcelUuid.fromString("0000181F-0000-1000-8000-00805f9b34fb");
+    private static final ParcelUuid GENERIC_SERVICE = ParcelUuid.fromString("00001801-0000-1000-8000-00805f9b34fb");
+    //private static final ParcelUuid CGM_SERVICE = ParcelUuid.fromString("0000181F-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid GLUCOSE_SERVICE = ParcelUuid.fromString("00001808-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid BATTERY_SERVICE = ParcelUuid.fromString("0000180F-0000-1000-8000-00805f9b34fb");
     //public static final ParcelUuid DEVICE_INFORAMTION_SERVICE = ParcelUuid.fromString("0000180A-0000-1000-8000-00805f9b34fb");
@@ -56,7 +58,7 @@ public class BtBgAdvertiserWorker extends Worker {
     public Result doWork() {
         // get data
         List<BgReading> readings = BgReadingRepository.getRepository(context)
-                .getMostRecentStaticReadings();
+                .getStaticReadings();
 
         // FIXME Debug code
 //        if (readings != null) {
@@ -114,9 +116,16 @@ public class BtBgAdvertiserWorker extends Worker {
         AdvertiseData data = new AdvertiseData.Builder()
                 .setIncludeDeviceName(false)
                 .setIncludeTxPowerLevel(false)
-                //.addServiceUuid(CGM_SERVICE)
-                .addServiceData(CGM_SERVICE, buildPacket(context, readings))
+                .addServiceUuid(GENERIC_SERVICE)
+                .addServiceData(GENERIC_SERVICE, buildPacket(context, readings))
                 .build();
+
+
+//        AdvertiseData data2 = new AdvertiseData.Builder()
+//                .setIncludeDeviceName(false)
+//                .setIncludeTxPowerLevel(false)
+//                .addServiceData(BATTERY_SERVICE, new byte[]{0x03})
+//                .build();
 
         // start advertising
         mBluetoothLeAdvertiser.startAdvertising(settings, data, mAdvertiseCallback);
@@ -144,7 +153,7 @@ public class BtBgAdvertiserWorker extends Worker {
             }
 
             // build payload
-            byte[] bqValuePayload = new byte[14];
+            byte[] bqValuePayload = new byte[16];
             // prepare bg payload
             int entryCount = 0;
             while (entryCount < bqValuePayload.length) {
@@ -160,6 +169,10 @@ public class BtBgAdvertiserWorker extends Worker {
             // encrypt values if password is set
             if (plainPassword != null && !plainPassword.isEmpty()) {
                 Log.d(TAG, "AES Encryption");
+                if (bqValuePayload.length != 14){
+                    // make array to the correct size to fit into one encryption block
+                    bqValuePayload = Arrays.copyOf(bqValuePayload, 14);
+                }
                 bqValuePayload = AesEncryptionHelper.encrypt(plainPassword, bqValuePayload);
             }
 

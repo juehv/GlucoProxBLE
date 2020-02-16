@@ -57,7 +57,7 @@ public class BgReadingRepository {
         return mAllBgReadings;
     }
 
-    public List<BgReading> getMostRecentStaticReadings() {
+    public List<BgReading> getStaticReadings() {
         return mBgReadingDao.getStaticReadings();
     }
 

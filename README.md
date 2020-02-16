@@ -1,6 +1,6 @@
 # GlucoProxBLE
 GlucoProxBLE aims to provide BG readings to other devices without requiring an Internet connection.
-Therefore it reads broadcasts from CGM application (e.g. xDrip) and sends them as BLE advertisements.
+Therefore it reads broadcasts from CGM applications (e.g. xDrip) and sends the readings as BLE advertisements.
 This should be a very (energy) efficient way to provide CGM readings to one or more receiving devices for further use (e.g. therapy assistance).
 
 **NOTE**: Currently only mg/dl is supported. Check back later for mmol/l support.
@@ -82,6 +82,7 @@ Therefore, I recommend setting an empty password to disable the feature, or take
 * Verify that "Foreground Services" are good enough to run in background reliably
 * Understand how to decrypt AES encrypted messages
 * Provide a receiver app example for RPi & ESP32
+* Since interpolation is not working well, search for bugs...
 * testing, testing, testing ...
 
 [//]: # (Note to future me: Look at this --> https://ukbaz.github.io/howto/beacon_scan_cmd_line.html)
