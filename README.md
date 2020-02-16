@@ -47,8 +47,10 @@ sudo hcidump --raw
 * `0x 02` Advertising package type: ADV_NONCONN_IND -> non-connectable undirected advertising event
 * `0x 01` -> 0b0001 -> 00 Reserved -> 0 RxAdd 1 TxAdd (no idea ...)
 * `0x 5C 44 20 AB 23 46` MAC Addresse (wich is changed regularly on Android)
-* `0x 1B` BIT[8:13]：advertising data length （Maximum 37 bytes) BIT[14:15]：Reserved -> 0b 00**01 0100** -> 20
-03 03 01 18
+* `0x 1B` BIT[8:13]：advertising data length （Maximum 37 bytes) BIT[14:15]：Reserved -> 0b 00**01 1011** -> 27
+* `0x 03` Size: 3
+* `0x 03` Type: Complete List of 16-bit Service Class UUIDs
+* `0x 01 18` Service-UUID: 0x1801 -> Generic Attribute
 * `0x 16` Size: 22
 * `0x 16` Type: Service Data
 * `0x 01 18` Service-UUID: 0x1801 -> Generic Attribute
@@ -56,6 +58,8 @@ sudo hcidump --raw
 * `0x 00` Time offset (or age) in minutes of the first BG reading.
 * `0x 86 85 86 8A 8A 8D 91 93 94 94 92 00 00 00 00 00` (Size - Type - ServiceUUID - BroadcastID - TimeOffset = in this case 16) BG readings in 5min rythm (starting with the newest). Missing readings are filled with 0x00.
 * `0x B1` CRC? (should be 3 bytes...)
+
+I found [this](https://www.silabs.com/community/wireless/bluetooth/knowledge-base.entry.html/2017/02/10/bluetooth_advertisin-hGsf) article very helpful to understand the packet structure
 
 
 **NOTE**: If you have the missing information, consider opening an issue or sending a pull request :)

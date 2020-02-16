@@ -117,7 +117,7 @@ public class BtBgAdvertiserWorker extends Worker {
         AdvertiseSettings settings = new AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER)
                 .setConnectable(false)
-                .setTimeout(60000) // 1m
+                .setTimeout(30000) // 30 sec. Should be short to not make the time offset invalid
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)
                 .build();
 
